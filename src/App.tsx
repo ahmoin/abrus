@@ -5,6 +5,16 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "./components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@radix-ui/react-dropdown-menu";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -154,15 +164,35 @@ function App() {
         </header>
       </div>
       <div className="max-w-2xl mx-auto">
-        <div className="grid w-full gap-2">
-          <Textarea
-            id="json-textarea"
-            placeholder="Input JSON here."
-            value={jsonText}
-            onChange={(e) => setJsonText(e.target.value)}
-          />
-          <Button onClick={handleClick}>Create Test</Button>
-        </div>
+        <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">JSON Data Editor</Button>
+            </DialogTrigger>
+            <DialogContent className="h-auto sm:w-[400px] md:min-w-[800px]">
+              <DialogHeader>
+                <DialogTitle>JSON Editor</DialogTitle>
+              </DialogHeader>
+              <Textarea
+                id="json-textarea"
+                placeholder="Input JSON here."
+                value={jsonText}
+                onChange={(e) => setJsonText(e.target.value)}
+              />
+              <DialogFooter>
+                <Button type="button" variant={"secondary"}>
+                  Copy to Clipboard
+                </Button>
+                <Button type="button" variant={"secondary"}>
+                  Cancel
+                </Button>
+                <Button type="submit" onClick={handleClick}>
+                  Apply Changes
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </ul>
       </div>
       <div
         id="test-questions-container"
