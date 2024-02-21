@@ -1,3 +1,4 @@
+import { createRoot } from "react-dom/client";
 import "./App.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -7,114 +8,134 @@ import { Button } from "./components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { useState } from "react";
+import { TestQuestion } from "./components/ui/test-question";
 
 function App() {
   const [jsonText, setJsonText] = useState("");
+  let root: any;
 
   const handleClick = () => {
     let isValid = false;
     let reasonInvalid;
-    try {
-      const jsonData = JSON.parse(jsonText);
-
-      if (!Array.isArray(jsonData)) {
-        console.log("Invalid JSON: Must be an array of objects");
-        return;
+    const container = document.getElementById("test-questions-container");
+    if (container) {
+      if (!root) {
+        root = createRoot(container);
       }
+      try {
+        const jsonData = JSON.parse(jsonText);
 
-      if (jsonData.length === 0) {
-        console.log("Invalid: Must include at least one question");
-        return;
-      }
-
-      let hasValidQuestion = false;
-      for (const question of jsonData) {
-        if (!question || typeof question !== "object") {
-          console.log("Invalid question object: Must be an object");
-          continue;
+        if (!Array.isArray(jsonData)) {
+          reasonInvalid = "Invalid JSON: Must be an array of objects";
         }
 
-        const requiredKeys = ["question", "correctAnswer", "falseAnswers"];
-        let isValidQuestion = true;
-        for (const key of requiredKeys) {
-          if (!question.hasOwnProperty(key)) {
-            reasonInvalid = `Missing required property: ${key}`;
-            isValidQuestion = false;
+        if (jsonData.length === 0) {
+          reasonInvalid = "Invalid: Must include at least one question";
+        }
+        if (typeof reasonInvalid !== "string") {
+          let hasValidQuestion = false;
+          for (const question of jsonData) {
+            if (!question || typeof question !== "object") {
+              reasonInvalid = "Invalid question object: Must be an object";
+              continue;
+            }
+
+            const requiredKeys = ["question", "correctAnswer", "falseAnswers"];
+            let isValidQuestion = true;
+            for (const key of requiredKeys) {
+              if (!question.hasOwnProperty(key)) {
+                reasonInvalid = `Missing required property: ${key}`;
+                isValidQuestion = false;
+              }
+            }
+
+            if (question.question && typeof question.question !== "string") {
+              reasonInvalid = "Invalid question: Must be a string";
+              isValidQuestion = false;
+            }
+
+            if (
+              question.correctAnswer &&
+              typeof question.correctAnswer !== "string"
+            ) {
+              reasonInvalid = "Invalid correctAnswer: Must be a string";
+              isValidQuestion = false;
+            }
+
+            if (
+              question.falseAnswers &&
+              (!Array.isArray(question.falseAnswers) ||
+                question.falseAnswers.length !== 3)
+            ) {
+              reasonInvalid =
+                "Invalid falseAnswers: Must be an array of 3 strings";
+              isValidQuestion = false;
+            }
+
+            for (const answer of question.falseAnswers) {
+              if (typeof answer !== "string") {
+                reasonInvalid = "Invalid falseAnswer: Must be a string";
+                isValidQuestion = false;
+              }
+            }
+
+            if (isValidQuestion) {
+              hasValidQuestion = true;
+              break;
+            }
+          }
+
+          if (hasValidQuestion) {
+            isValid = true;
+          } else if (typeof reasonInvalid !== "string") {
+            reasonInvalid = "No valid questions found in the JSON data";
           }
         }
-
-        if (question.question && typeof question.question !== "string") {
-          reasonInvalid = "Invalid question: Must be a string";
-          isValidQuestion = false;
-        }
-
+      } catch (error) {
         if (
-          question.correctAnswer &&
-          typeof question.correctAnswer !== "string"
+          typeof error === "object" &&
+          error &&
+          "message" in error &&
+          typeof error.message === "string"
         ) {
-          reasonInvalid = "Invalid correctAnswer: Must be a string";
-          isValidQuestion = false;
-        }
-
-        if (
-          question.falseAnswers &&
-          (!Array.isArray(question.falseAnswers) ||
-            question.falseAnswers.length !== 3)
-        ) {
-          reasonInvalid = "Invalid falseAnswers: Must be an array of 3 strings";
-          isValidQuestion = false;
-        }
-
-        for (const answer of question.falseAnswers) {
-          if (typeof answer !== "string") {
-            reasonInvalid = "Invalid falseAnswer: Must be a string";
-            isValidQuestion = false;
-          }
-        }
-
-        if (isValidQuestion) {
-          hasValidQuestion = true;
-          break;
+          reasonInvalid = error.message;
         }
       }
+      if (isValid) {
+        console.log("Validated!");
+        toast("JSON data validated!", {
+          classNames: {
+            toast:
+              "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
+          },
+          description: "Your test is being created...",
+        });
+        const questions = JSON.parse(jsonText);
 
-      if (hasValidQuestion) {
-        isValid = true;
-      } else if (typeof reasonInvalid !== "string") {
-        reasonInvalid = "No valid questions found in the JSON data";
-      }
-    } catch (error) {
-      if (
-        typeof error === "object" &&
-        error &&
-        "message" in error &&
-        typeof error.message === "string"
-      ) {
+        const testQuestionElements = questions.map(
+          (question: any, index: number) => (
+            <TestQuestion
+              key={index}
+              questionNumber={index + 1}
+              questionText={question.question}
+              correctAnswer={question.correctAnswer}
+              falseAnswers={question.falseAnswers}
+            />
+          )
+        );
+
+        // Render the elements directly into the container:
+        root.render(testQuestionElements);
+      } else {
+        console.log(reasonInvalid);
         toast("JSON data not valid!", {
           classNames: {
             toast:
               "group toast group-[.toaster]:bg-warning group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
           },
-          description: error.message,
+          description: reasonInvalid,
         });
       }
-    }
-    if (isValid) {
-      toast("JSON data validated!", {
-        classNames: {
-          toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-        },
-        description: "Your test is being created...",
-      });
-    } else if (typeof reasonInvalid === "string") {
-      toast("JSON data not valid!", {
-        classNames: {
-          toast:
-            "group toast group-[.toaster]:bg-warning group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-        },
-        description: reasonInvalid,
-      });
     }
   };
 
@@ -143,6 +164,10 @@ function App() {
           <Button onClick={handleClick}>Create Test</Button>
         </div>
       </div>
+      <div
+        id="test-questions-container"
+        className="max-w-2xl mx-auto py-10 px-4"
+      ></div>
       <Toaster />
     </ThemeProvider>
   );
