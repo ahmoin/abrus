@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  A utility-first CSS framework for rapidly building custom user interfaces.
+
 </p>
 
 <p align="center">
