@@ -12,7 +12,10 @@ export function TestQuestion({
   questionText,
   answers,
 }: TestQuestionProps) {
-  answers.sort(() => Math.random() - 0.5);
+  for (let i = answers.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [answers[i], answers[j]] = [answers[j], answers[i]];
+  }
 
   const ids = answers.map(
     (_, index) => `${questionNumber}-answer-${index + 1}`
