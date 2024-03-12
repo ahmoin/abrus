@@ -22,11 +22,11 @@ function App() {
   const [jsonText, setJsonText] = useState("");
   let root: any;
 
-  const [open, setOpen] = useState(false); // State to manage dialog visibility
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const handleClose = () => setOpen(false); // Function to close the dialog
+  const handleDialogClose = () => setDialogOpen(false);
 
-  const handleClick = () => {
+  const handleSubmit = () => {
     let isValid = false;
     let reasonInvalid;
     const container = document.getElementById("test-questions-container");
@@ -126,8 +126,8 @@ function App() {
           )
         );
 
-        // Render the elements directly into the container:
         root.render(testQuestionElements);
+        handleDialogClose();
       } else {
         console.log(reasonInvalid);
         toast("JSON data not valid!", {
@@ -157,7 +157,7 @@ function App() {
       </div>
       <div className="max-w-2xl mx-auto">
         <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-          <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline">JSON Data Editor</Button>
             </DialogTrigger>
@@ -178,11 +178,11 @@ function App() {
                 <Button
                   type="button"
                   variant={"secondary"}
-                  onClick={handleClose}
+                  onClick={handleDialogClose}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" onClick={handleClick}>
+                <Button type="submit" onClick={handleSubmit}>
                   Apply Changes
                 </Button>
               </DialogFooter>
