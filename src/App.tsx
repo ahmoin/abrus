@@ -48,7 +48,7 @@ function App() {
               continue;
             }
 
-            const requiredKeys = ["question", "correctAnswer", "falseAnswers"];
+            const requiredKeys = ["question", "answers"];
             let isValidQuestion = true;
             for (const key of requiredKeys) {
               if (!question.hasOwnProperty(key)) {
@@ -63,26 +63,17 @@ function App() {
             }
 
             if (
-              question.correctAnswer &&
-              typeof question.correctAnswer !== "string"
+              question.answers &&
+              (!Array.isArray(question.answers) ||
+                question.answers.length !== 4)
             ) {
-              reasonInvalid = "Invalid correctAnswer: Must be a string";
+              reasonInvalid = "Invalid answers: Must be an array of 4 strings";
               isValidQuestion = false;
             }
 
-            if (
-              question.falseAnswers &&
-              (!Array.isArray(question.falseAnswers) ||
-                question.falseAnswers.length !== 3)
-            ) {
-              reasonInvalid =
-                "Invalid falseAnswers: Must be an array of 3 strings";
-              isValidQuestion = false;
-            }
-
-            for (const answer of question.falseAnswers) {
+            for (const answer of question.answers) {
               if (typeof answer !== "string") {
-                reasonInvalid = "Invalid falseAnswer: Must be a string";
+                reasonInvalid = "Invalid answer: Must be a string";
                 isValidQuestion = false;
               }
             }
@@ -126,8 +117,7 @@ function App() {
               key={index}
               questionNumber={index + 1}
               questionText={question.question}
-              correctAnswer={question.correctAnswer}
-              falseAnswers={question.falseAnswers}
+              answers={question.answers}
             />
           )
         );

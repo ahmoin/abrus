@@ -4,18 +4,14 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 type TestQuestionProps = {
   questionNumber: number;
   questionText: string;
-  correctAnswer: string;
-  falseAnswers: string[];
+  answers: string[];
 };
 
 export function TestQuestion({
   questionNumber,
   questionText,
-  correctAnswer,
-  falseAnswers,
+  answers,
 }: TestQuestionProps) {
-  const answers = [correctAnswer, ...falseAnswers];
-
   answers.sort(() => Math.random() - 0.5);
 
   const ids = answers.map(
