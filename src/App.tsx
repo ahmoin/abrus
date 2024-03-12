@@ -22,6 +22,10 @@ function App() {
   const [jsonText, setJsonText] = useState("");
   let root: any;
 
+  const [open, setOpen] = useState(false); // State to manage dialog visibility
+
+  const handleClose = () => setOpen(false); // Function to close the dialog
+
   const handleClick = () => {
     let isValid = false;
     let reasonInvalid;
@@ -153,7 +157,7 @@ function App() {
       </div>
       <div className="max-w-2xl mx-auto">
         <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-          <Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button variant="outline">JSON Data Editor</Button>
             </DialogTrigger>
@@ -171,7 +175,11 @@ function App() {
                 <Button type="button" variant={"secondary"}>
                   Copy to Clipboard
                 </Button>
-                <Button type="button" variant={"secondary"}>
+                <Button
+                  type="button"
+                  variant={"secondary"}
+                  onClick={handleClose}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" onClick={handleClick}>
